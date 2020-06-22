@@ -22,6 +22,7 @@ connection.connect(function(err) {
   runTracker();
 });
 
+// Start Employee Tracker app
 function runTracker() {
     inquirer
       .prompt({
