@@ -1,0 +1,23 @@
+{
+  "name": "mysql-employee-tracker",
+  "version": "1.0.0",
+  "description": "![Project license badge](https://img.shields.io/badge/license-MIT-brightgreen)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/carmenobied/MySQL-Employee-Tracker.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/carmenobied/MySQL-Employee-Tracker/issues"
+  },
+  "homepage": "https://github.com/carmenobied/MySQL-Employee-Tracker#readme",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "mysql": "^2.18.1"
+  }
+}
