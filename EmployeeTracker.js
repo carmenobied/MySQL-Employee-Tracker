@@ -3,6 +3,11 @@ var mysql = require("mysql");
 var inquirer = require("inquirer");
 var consoleTable = require("console.table");
 
+//*Class Constructors
+const employee = require('./constructor/employee');
+const role = require('./constructor/role');
+const department = require('./constructor/department');
+
 // Create connection for the MySQL database
 var connection = mysql.createConnection({
   host: "localhost",
