@@ -14,7 +14,7 @@ VALUES
 ("Sales Manager", 130, 1),
 ("Engineering Manager", 150, 1),
 ("Software Engineer", 50, 3),
-("Finance Analyst", 90, 2),
+("Accountant", 90, 2),
 ("Legal Advisor", 100, 2);
 
 -- Employee records 
