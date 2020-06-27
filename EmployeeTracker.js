@@ -251,3 +251,13 @@ const updateEmployeeRole = () => {
           })
         });
 } 
+
+// Note: use mySQLjoins;
+
+// SELECT employee.id, employee.first_name, employee.last_name, roles.title, roles.salary, department.dep_name, CONCAT(employee.first_name,' ’, employee.last_name) AS Manager
+//     FROM employee
+//     LEFT JOIN roles ON roles.id = employee.role_id
+//     LEFT JOIN department ON department.id = roles.department_id
+//     LEFT JOIN employee e ON e.id = employee.manager_id
+//     ORDER BY employee.id;
+
