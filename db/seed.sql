@@ -1,3 +1,5 @@
+USE EmployeeTracker_db;
+
 -- Insert a set of records
 INSERT INTO department (name) VALUES ("Sales");
 INSERT INTO department (name) VALUES ("Engineering");
@@ -6,7 +8,6 @@ INSERT INTO department (name) VALUES ("Legal");
 
 INSERT INTO role (title, salary, department_id) VALUES ("Sales Rep", 70, 3);
 INSERT INTO role (title, salary, department_id) VALUES ("Engineering Director", 100, 4);
-INSERT INTO role (title, salary, department_id) VALUES ("Software Engineer", 50, 2);
 INSERT INTO role (title, salary, department_id) VALUES ("Software Engineer", 50, 2);
 INSERT INTO role (title, salary, department_id) VALUES ("Finance Representative", 50, 2);
 INSERT INTO role (title, salary, department_id) VALUES ("Legal Representative", 100, 1);
