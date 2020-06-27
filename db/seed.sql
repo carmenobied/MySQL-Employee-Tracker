@@ -11,11 +11,11 @@ VALUES ("Sales"),("Engineering"), ("Finance"), ("Legal");
 INSERT INTO role (title, salary, department_id) 
 VALUES
 ("Sales Rep", 70, 3),
-("Sales Manager", 130, 3),
-("Engineering Manager", 150, 4),
-("Software Engineer", 50, 2),
+("Sales Manager", 130, 1),
+("Engineering Manager", 150, 1),
+("Software Engineer", 50, 3),
 ("Finance Analyst", 90, 2),
-("Legal Advisor", 100, 1);
+("Legal Advisor", 100, 2);
 
 -- Employee records 
 INSERT INTO employee (first_name, last_name, role_id) 
