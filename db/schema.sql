@@ -51,7 +51,7 @@ SELECT * FROM EmployeeTracker_db;
                     ON e.role_id = r.id
                 INNER JOIN department d
                     ON r.department_id = d.id
-            Order by d.id DESC
+            ORDER BY d.id DESC
 
 --    "View employess by role",
             SELECT 
@@ -61,12 +61,12 @@ SELECT * FROM EmployeeTracker_db;
             FROM employee e
                 INNER JOIN role r 
                     ON e.role_id = r.id
-            Order by r.id DESC
+            ORDER BY r.id DESC
 
 --    "View employess by manager_id",
             SELECT 
                 e.id,
-                CONCAT (e.first_name,'',e.last_name) as Manager_Full_Name,
+                CONCAT (e.first_name,'',e.last_name) AS Manager_Full_Name,
                 r.id,
                 e.manager_id
             FROM employee e
@@ -77,7 +77,6 @@ SELECT * FROM EmployeeTracker_db;
 
  -- "View departments",
             SELECT * FROM department ORDER BY name DESC
-
-
+            
  -- "View roles",
             SELECT * FROM role ORDER BY department_id DESC
