@@ -84,13 +84,13 @@ function runTracker() {
   }
 
  // View Employees
-function viewEmployees() {
+const viewEmployees = () => {
   // connect to the mysql server and sql database
-connection.connect((err, res) => {
+connection.connect(`SELECT * FROM employee`, (err, res) => {
   if (err) throw err;
   // run the start function after the connection is made to prompt the user
   console.table(res);
-  runTracker();
+  // runTracker();
 })
 };
 
