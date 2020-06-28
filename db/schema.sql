@@ -37,10 +37,13 @@ CREATE TABLE department (
 
 SELECT * FROM EmployeeTracker_db;
 
--- "View employees",
+-- "View employees"
             SELECT * FROM employee
 
--- "View employees by department",
+ -- "View departments"
+            SELECT * FROM department ORDER BY name DESC
+
+-- "View employees by department"
             SELECT 
                 e.id,
                 CONCAT (e.first_name,'',e.last_name),
@@ -53,7 +56,10 @@ SELECT * FROM EmployeeTracker_db;
                     ON r.department_id = d.id
             ORDER BY d.id DESC
 
---    "View employess by role",
+ -- "View roles"
+            SELECT * FROM role ORDER BY department_id DESC
+
+--    "View employees by role"
             SELECT 
                 e.id,
                 CONCAT (e.first_name,'',e.last_name),
@@ -63,7 +69,7 @@ SELECT * FROM EmployeeTracker_db;
                     ON e.role_id = r.id
             ORDER BY r.id DESC
 
---    "View employess by manager_id",
+--    "View employess by manager_id"
             SELECT 
                 e.id,
                 CONCAT (e.first_name,'',e.last_name) AS Manager_Full_Name,
@@ -74,9 +80,3 @@ SELECT * FROM EmployeeTracker_db;
                     ON e.role_id = r.id
             WHERE e.manager_id IS NOT NULL
             ORDER BY e.manager_id DESC
-
- -- "View departments",
-            SELECT * FROM department ORDER BY name DESC
-            
- -- "View roles",
-            SELECT * FROM role ORDER BY department_id DESC
