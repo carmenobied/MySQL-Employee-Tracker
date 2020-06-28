@@ -37,4 +37,47 @@ CREATE TABLE department (
 
 SELECT * FROM EmployeeTracker_db;
 
--- Note: use mySQLjoins;
+-- "View employees",
+            SELECT * FROM employee
+
+-- "View employees by department",
+            SELECT 
+                e.id,
+                CONCAT (e.first_name,'',e.last_name),
+                d.id,
+                d.name
+            FROM employee e
+                INNER JOIN role r 
+                    ON e.role_id = r.id
+                INNER JOIN department d
+                    ON r.department_id = d.id
+            Order by d.id DESC
+
+--    "View employess by role",
+            SELECT 
+                e.id,
+                CONCAT (e.first_name,'',e.last_name),
+                r.id
+            FROM employee e
+                INNER JOIN role r 
+                    ON e.role_id = r.id
+            Order by r.id DESC
+
+--    "View employess by manager_id",
+            SELECT 
+                e.id,
+                CONCAT (e.first_name,'',e.last_name) as Manager_Full_Name,
+                r.id,
+                e.manager_id
+            FROM employee e
+                INNER JOIN role r 
+                    ON e.role_id = r.id
+            WHERE e.manager_id IS NOT NULL
+            ORDER BY e.manager_id DESC
+
+ -- "View departments",
+            SELECT * FROM department ORDER BY name DESC
+
+
+ -- "View roles",
+            SELECT * FROM role ORDER BY department_id DESC
