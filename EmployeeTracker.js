@@ -3,7 +3,7 @@ var mysql = require("mysql");
 var inquirer = require("inquirer");
 var consoleTable = require("console.table");
 
-//*Class Constructors
+// Class Constructors
 const employee = require('./constructor/employee');
 const role = require('./constructor/role');
 const department = require('./constructor/department');
@@ -20,7 +20,7 @@ var connection = mysql.createConnection({
 
   // Password
   password: "Nomad7285!",
-  database: "EmployeeTracker_DB"
+  database: "EmployeeTracker_db"
 });
 
 connection.connect(function(err) {
