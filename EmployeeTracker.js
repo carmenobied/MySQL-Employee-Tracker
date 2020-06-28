@@ -83,7 +83,7 @@ function runTracker() {
       });
   }
 
-   // View Employees (with emplyee id, names (first and last), role title, department, salary, manager)
+  // View Employees (with emplyee id, names (first and last), role title, department, salary, manager)
   const viewAllEmployees = () => {
     connection.query( `
             SELECT 
@@ -109,14 +109,26 @@ function runTracker() {
     };
 
 // View Employees by Department
-    // ***************************************************************
+// *****************************************************************
       const viewEmployeesDepartment = () => {
         // Dynamically create questions
         let departmentOptions = [];
-        connection.query(`SELECT * FROM department`, (err, res) => {
-          res.forEach(element => {
-            departmentOptions.push(element.department);
-          });
+        connection.query(`            
+            SELECT 
+              distinct (e.id),
+              CONCAT (e.first_name,'',e.last_name),
+              d.id,
+              d.name
+            FROM employee e
+              INNER JOIN role r 
+                  ON e.role_id = r.id
+              INNER JOIN department d
+                  ON r.department_id = d.id
+            ORDER BY d.id DESC`, 
+              (err, res) => {
+          // res.forEach(element => {
+          //   departmentOptions.push(element.department);
+          // });
           inquirer
             .prompt({
               name: "action",
@@ -133,14 +145,16 @@ function runTracker() {
             })
         })
       };
-      // View Employees Departments
-      // ***************************************************************
+
+// View Employees Departments
+// ********************************************************************
       const viewDepartments = () => {
         connection.query(`SELECT * FROM department`, (err, res) => {
           console.table(res);
           runTracker();
         })
       }
+      
       // View Employees Role
       // ***************************************************************
       const viewEmployeesRole = () => {

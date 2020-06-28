@@ -40,12 +40,27 @@ SELECT * FROM EmployeeTracker_db;
 -- "View employees"
             SELECT * FROM employee
 
+-- "View employees"
+                       SELECT 
+              distinct (e.id),
+              CONCAT (e.first_name,' ',e.last_name) AS employee_name,
+              r.title as role_title,
+              d.name,
+              r.salary,
+              e.manager_id
+            FROM employee e
+              INNER JOIN role r 
+                ON e.role_id = r.id
+              INNER JOIN department d
+                ON r.department_id = d.id
+            ORDER BY e.id DESC
+
  -- "View departments"
             SELECT * FROM department ORDER BY name DESC
 
 -- "View employees by department"
             SELECT 
-                e.id,
+                distinct (e.id),
                 CONCAT (e.first_name,'',e.last_name),
                 d.id,
                 d.name
@@ -71,12 +86,26 @@ SELECT * FROM EmployeeTracker_db;
 
 --    "View employess by manager_id"
             SELECT 
-                e.id,
+                e.id AS employee_id,
                 CONCAT (e.first_name,'',e.last_name) AS Manager_Full_Name,
-                r.id,
+                r.id AS role_id,
                 e.manager_id
             FROM employee e
                 INNER JOIN role r 
                     ON e.role_id = r.id
             WHERE e.manager_id IS NOT NULL
             ORDER BY e.manager_id DESC
+
+-- View the total utilized budget of a department -- ie the combined salaries of all employees in that department
+            SELECT
+            -- aggregate function
+              SUM(r.salary),
+              d.name
+            FROM employee e
+              INNER JOIN role r 
+                  ON e.role_id = r.id
+              INNER JOIN department d
+                  ON r.department_id = d.id
+            GROUP BY
+              2
+      -- Group by: when using an aggregate function (e.g. sum, count, average, etc) in the select statement, everything under the aggregate function must be grouped
