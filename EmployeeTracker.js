@@ -49,7 +49,7 @@ function runTracker() {
       .then(function(answer) {
         switch (answer.action) {
         case "View employees":
-          viewEmployees();
+          viewAllEmployees();
           break;
   
         case "View employees by department":
@@ -83,16 +83,30 @@ function runTracker() {
       });
   }
 
- // View Employees
-const viewEmployees = () => {
-  // connect to the mysql server and sql database
-connection.connect(`SELECT * FROM employee`, (err, res) => {
-  if (err) throw err;
-  // run the start function after the connection is made to prompt the user
-  console.table(res);
-  // runTracker();
-})
-};
+   // View Employees (with emplyee id, names (first and last), role title, department, salary, manager)
+  const viewAllEmployees = () => {
+    connection.query( `
+            SELECT 
+              distinct (e.id),
+              CONCAT (e.first_name,' ',e.last_name) AS employee_name,
+              r.title as role_title,
+              d.name,
+              r.salary,
+              e.manager_id
+            FROM employee e
+              INNER JOIN role r 
+                ON e.role_id = r.id
+              INNER JOIN department d
+                ON r.department_id = d.id
+            ORDER BY e.id DESC`
+            , (err, res) => {
+          // connect to the mysql server and sql database
+          if (err) throw err;
+          // run the start function after the connection is made to prompt the user
+          console.table(res);
+          // runTracker();
+      })
+    };
 
 // View Employees by Department
     // ***************************************************************
@@ -260,4 +274,3 @@ const updateEmployeeRole = () => {
 //     LEFT JOIN department ON department.id = roles.department_id
 //     LEFT JOIN employee e ON e.id = employee.manager_id
 //     ORDER BY employee.id;
-
