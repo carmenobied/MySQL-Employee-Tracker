@@ -37,10 +37,12 @@ CREATE TABLE department (
 
 SELECT * FROM EmployeeTracker_db;
 
--- "View employees"
+-- SQL Queries: all queries below successfully tested in MySQL Workbench and returned correct data from EmployeeTracker_db
+
+-- "View all employees"
             SELECT * FROM employee
 
--- "View employees"
+-- "View Employees (with emplyee id, names (first and last), role title, department, salary, manager)"
                        SELECT 
               distinct (e.id),
               CONCAT (e.first_name,' ',e.last_name) AS employee_name,
@@ -55,7 +57,7 @@ SELECT * FROM EmployeeTracker_db;
                 ON r.department_id = d.id
             ORDER BY e.id DESC
 
- -- "View departments"
+ -- "View all departments"
             SELECT * FROM department ORDER BY name DESC
 
 -- "View employees by department"
@@ -71,10 +73,10 @@ SELECT * FROM EmployeeTracker_db;
                     ON r.department_id = d.id
             ORDER BY d.id DESC
 
- -- "View roles"
+ -- "View all roles"
             SELECT * FROM role ORDER BY department_id DESC
 
---    "View employees by role"
+--  "View employees by role"
             SELECT 
                 e.id,
                 CONCAT (e.first_name,'',e.last_name),

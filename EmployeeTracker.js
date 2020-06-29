@@ -37,37 +37,38 @@ function runTracker() {
         type: "list",
         message: "What would you like to do?",
         choices: [
-            "View employees", // works 
-            "View employees by department", // error // UnhandledPromiseRejectionWarning: TypeError: Cannot read property 'type' of undefined
-            "View all departments", // works
-            "View all roles", // blank
-            "View employees by role", // works 
-            "Add employee role", // blank
-            "Delete employee role", // works
-            "Update employee role", // blank 
-            "View employees by manager", // blank 
-            "View total budget by department", // blank 
+            "View all employees",
+            "View all departments", 
+            "View all roles", 
+            "View employees by department", 
+            "Add new employee", 
+            "Add new role", 
+            "Add new department", 
+            "Delete employee role",
+            "Update employee role", 
+            "View employees by manager", 
+            "View total budget by department", 
             "Exit"
         ]
       })
       .then(function(answer) {
         switch (answer.action) {
-        case "View employees":
+        case "View all employees":
           viewAllEmployees();
             break;
   
+        case "View all departments":
+              viewAllDepartments();
+                break;
+    
+        case "View all roles":
+              viewAllRoles();
+                break;
+
         case "View employees by department":
           viewEmployeesByDepartment();
             break;
   
-        case "View all departments":
-          viewAllDepartments();
-            break;
-
-        case "View employess by role":
-          viewAllRoles();
-            break;
-        
         case "Add new employee":
           addNewEmployee();
             break;
@@ -87,10 +88,12 @@ function runTracker() {
        case "Update employee role":
            updateEmployeeRole() 
             break;
-       case "View budget by department":
+
+       case "View employees by manager":
             viewEmployeeByManager() 
             break;
-        case "View budget by department":
+
+        case "View total budget by department":
            viewBudgetByDepartment() 
             break;
         case "Exit":
@@ -182,7 +185,6 @@ const viewEmployeesByDepartment = () => {
           runTracker();
         });
     };
-
 
 // ADD New Employee
 // ***************************************************************
@@ -370,9 +372,10 @@ const addNewDepartment = () => {
 const deleteEmployeeRole = () => {
   // ADD QUERY
   let employeesArray = [];
-  connection.query(`SELECT id, first_name, last_name
-  FROM employee`, 
-  (err, res) => {
+  connection.query(`
+      SELECT id, first_name, last_name
+      FROM employee`, 
+    (err, res) => {
     res.forEach(element => {
       employeesArray.push(`${element.id} ${element.first_name} ${element.last_name}`);
     });
@@ -399,8 +402,10 @@ const deleteEmployeeRole = () => {
 // ***************************************************************
 const updateEmployeeRole = () => {
   let employeesArray = [];
-  connection.query(`SELECT id, first_name, last_name
-  FROM employee`, (err, res) => {
+  connection.query(`
+        SELECT id, first_name, last_name
+        FROM employee`, 
+     (err, res) => {
     res.forEach(element => {
       employeesArray.push(`${element.id} ${element.first_name} ${element.last_name}`);
     });
@@ -458,36 +463,31 @@ const viewEmployeeByManager = () => {
               ON e.role_id = r.id
         WHERE e.manager_id IS NOT NULL
         ORDER BY e.manager_id DESC`, 
-//       (err, res) => {
-//       res.forEach(element => {
-//       departmentArray.push(element.department);
-//     });
-//     inquirer
-//       .prompt({
-//         name: "action",
-//         type: "list",
-//         message: "What manager's employees do you want to see? would you like to view?",
-//         choices: departmentArray
-//       })
-//       .then(response => {
-//         connection.query(`${viewAllEmployees}
-//         WHERE department = "${response.action}"`, (err, res) => {
-//           console.table(res);
-//           runTracker();
-//         })
-//       })
-//   })
-// };
-  (err, res) => {
-  if (err) throw err;
-  console.table(res);
-  runTracker();
-})
+      (err, res) => {
+      res.forEach(element => {
+      departmentArray.push(element.department);
+    });
+    inquirer
+      .prompt({
+        name: "action",
+        type: "list",
+        message: "What manager's employees would you like to view?",
+        choices: departmentArray
+      })
+      .then(response => {
+        connection.query(`${viewAllEmployees}
+        WHERE department = "${response.action}"`, (err, res) => {
+          console.table(res);
+          runTracker();
+        })
+      })
+  })
 };
 
 // Total utilized budget by department -- ie the combined salaries of all employees in that department
 // *****************************************************************
 const viewBudgetByDepartment = () => {
+  let departmentArray = [];
   // use aggregate function (e.g. sum, count, average, etc)
   connection.query( `
         SELECT
@@ -500,13 +500,34 @@ const viewBudgetByDepartment = () => {
               ON r.department_id = d.id
         GROUP BY 
           2`, 
-        // Group by: when using an aggregate function (e.g. sum, count, average, etc) in the select statement, everything under the aggregate function must be grouped
         (err, res) => {
-        // connect to the mysql server and sql database
-        if (err) throw err;
-        // run the start function after the connection is made to prompt the user
-        console.table(res);
-        // runTracker();
+        // Group by: when using an aggregate function (e.g. sum, count, average, etc) in the select statement, everything under the aggregate function must be grouped
+        res.forEach(element => {
+          departmentArray.push(element.department);
+        })
+        inquirer
+        .prompt(
+          {
+            name: "departmentBudget",
+            type: "list",
+            message: "Please select budget by department:",
+            choices: departmentArray
+          }
+        )
+        .then(response => {
+          connection.query(`SELECT salary FROM (${viewAllEmployees}) AS managerSubTable WHERE department = "${response.departmentBudget}"`, (err, resp) => {
+            let salarySum = 0;
+            resp.forEach(element => {
+              salarySum += element.salary;
+            })
+            connection.query(`SELECT department FROM department WHERE department = "${response.departmentBudget}"`, (err, res) => {
+              if (err) throw err;
+              console.table(res);
+              console.log(`budget of $${salarySum}`)
+              runTracker();
+            })
+          })
+        })
     })
-  };
+  }
 // end Tracker 
