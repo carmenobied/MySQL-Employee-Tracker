@@ -84,7 +84,7 @@ SELECT * FROM EmployeeTracker_db;
                     ON e.role_id = r.id
             ORDER BY r.id DESC
 
---    "View employess by manager_id"
+--    "View employees by manager_id"
             SELECT 
                 e.id AS employee_id,
                 CONCAT (e.first_name,'',e.last_name) AS Manager_Full_Name,
@@ -98,7 +98,7 @@ SELECT * FROM EmployeeTracker_db;
 
 -- View the total utilized budget of a department -- ie the combined salaries of all employees in that department
             SELECT
-            -- aggregate function
+            -- aggregate function (e.g. sum, count, average, etc)
               SUM(r.salary),
               d.name
             FROM employee e
@@ -108,4 +108,4 @@ SELECT * FROM EmployeeTracker_db;
                   ON r.department_id = d.id
             GROUP BY
               2
-      -- Group by: when using an aggregate function (e.g. sum, count, average, etc) in the select statement, everything under the aggregate function must be grouped
+      -- Group by: when using an aggregate function in the select statement, everything under the aggregate function must be grouped

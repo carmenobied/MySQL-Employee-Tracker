@@ -37,12 +37,16 @@ function runTracker() {
         type: "list",
         message: "What would you like to do?",
         choices: [
-            "View employees",
-            "View employees by department",
-            "View employess by role",
-            "Add employee role",
-            "Delete employee role",
-            "Update employee role",
+            "View employees", // works 
+            "View employees by department", // error // UnhandledPromiseRejectionWarning: TypeError: Cannot read property 'type' of undefined
+            "View all departments", // works
+            "View all roles", // blank
+            "View employees by role", // works 
+            "Add employee role", // blank
+            "Delete employee role", // works
+            "Update employee role", // blank 
+            "View employees by manager", // blank 
+            "View total budget by department", // blank 
             "Exit"
         ]
       })
@@ -50,35 +54,48 @@ function runTracker() {
         switch (answer.action) {
         case "View employees":
           viewAllEmployees();
-          break;
+            break;
   
         case "View employees by department":
-          viewEmployeesDepartment();
-          break;
+          viewEmployeesByDepartment();
+            break;
   
-        case "View departments":
-            viewDepartments();
-          break;
+        case "View all departments":
+          viewAllDepartments();
+            break;
 
         case "View employess by role":
-          viewEmployeesRole();
-          break;
+          viewAllRoles();
+            break;
         
-        case "Add employee role":
-          addEmployeeRole();
-          break;
+        case "Add new employee":
+          addNewEmployee();
+            break;
+        
+        case "Add new role":
+          addNewRole();
+            break;
+        
+        case "Add new department":
+          addNewDepartment();
+            break;
       
        case "Delete employee role":
           deleteEmployeeRole() 
-          break;
+            break;
 
        case "Update employee role":
            updateEmployeeRole() 
-           break;
-  
+            break;
+       case "View budget by department":
+            viewEmployeeByManager() 
+            break;
+        case "View budget by department":
+           viewBudgetByDepartment() 
+            break;
         case "Exit":
           connection.end();
-          break;
+            break;
         }
       });
   }
@@ -104,15 +121,15 @@ function runTracker() {
           if (err) throw err;
           // run the start function after the connection is made to prompt the user
           console.table(res);
-          // runTracker();
+          runTracker();
       })
     };
 
 // View Employees by Department
 // *****************************************************************
-      const viewEmployeesDepartment = () => {
-        // Dynamically create questions
-        let departmentOptions = [];
+const viewEmployeesByDepartment = () => {
+  //Create choices for inquirer question dynamically
+        let departmentArray = [];
         connection.query(`            
             SELECT 
               distinct (e.id),
@@ -125,19 +142,19 @@ function runTracker() {
               INNER JOIN department d
                   ON r.department_id = d.id
             ORDER BY d.id DESC`, 
-              (err, res) => {
-          // res.forEach(element => {
-          //   departmentOptions.push(element.department);
-          // });
+            (err, res) => {
+            res.forEach(element => {
+            departmentArray.push(element.department);
+          });
           inquirer
             .prompt({
               name: "action",
               type: "list",
               message: "What department would you like to view?",
-              choices: departmentOptions
+              choices: departmentArray
             })
             .then(response => {
-              connection.query(`${viewEmployees}
+              connection.query(`${viewAllEmployees}
               WHERE department = "${response.action}"`, (err, res) => {
                 console.table(res);
                 runTracker();
@@ -146,91 +163,225 @@ function runTracker() {
         })
       };
 
-// View Employees Departments
-// ********************************************************************
-      const viewDepartments = () => {
-        connection.query(`SELECT * FROM department`, (err, res) => {
-          console.table(res);
-          runTracker();
-        })
-      }
-      
-      // View Employees Role
+      // View all Departments
       // ***************************************************************
-      const viewEmployeesRole = () => {
-        connection.query(`SELECT * FROM role`, (err, res) => {
+      const viewAllDepartments = () => {
+        connection.query(`SELECT * FROM department`, (err, res) => {
+          if (err) throw err;
           console.table(res);
           runTracker();
-        })
-    }
+        });
+      };
 
-// Add New Employee Role
-// ***************************************************************
-const addEmployeeRole = () => {
-    inquirer
-      .prompt([
-        {
-          name: "roleTitle",
-          type: "input",
-          message: "Please enter the new role title:",
-          validate: (response) => {
-            if (response.length < 1) {
-                return 'Must enter a valid title';  
-            }
-            return true;
-        },
-          name: "department",
-          type: "list",
-          message: "Please select the new role's department:",
-          choices: ["Engineering", "Sales", "Financial", "Legal"],
-          validate: (response) => {
-            if (response.length < 1) {
-                return 'Must enter a valid deparment';
-            }
-            return true;
-        },
-          name: "salary",
-          type: "input",
-          message: "Please enter the new role's salary:", 
-          validate: (response) => {
-            if (response.length < 1) {
-                return 'Must enter a valid salary';
-            }
-            return true;
-        },
-        }
-    ])
-      .then(response => {
-        connection.query(
-          "INSERT INTO role SET ?",
-          {
-            title: response.roleTitle,
-            salary: response.salary,
-            department_id: parseInt(response.department)
-          }, (err, res) => {
-            if (err) throw err;
-            console.log(`${response.roleTitle} role has been added.`)
-          }
-        )
+      // View all Roles
+      // ***************************************************************
+      const viewAllRoles = () => {
         connection.query(`SELECT * FROM role`, (err, res) => {
           if (err) throw err;
           console.table(res);
           runTracker();
+        });
+    };
+
+
+// ADD New Employee
+// ***************************************************************
+
+const addNewEmployee = () => {
+  let departmentArray = [];
+  connection.query(`SELECT * FROM department`, (err, res) => {
+    res.forEach(element => {
+      departmentArray.push(`${element.id} ${element.department}`);
+    });
+    let roleArray = [];
+    connection.query(`SELECT id, title FROM role`, (err, res) => {
+      res.forEach(element => {
+        roleArray.push(`${element.id} ${element.title}`);
+      });
+      let managerArray= [];
+      connection.query(`SELECT id, first_name, last_name FROM employee`, (err, res) => {
+        res.forEach(element => {
+          managerArray.push(`${element.id} ${element.first_name} ${element.last_name}`);
+        });
+    inquirer
+      .prompt([
+        {
+          name: "addFirstName",
+          type: "input",
+          message: "Please enter first name of employee:"
+          },
+          {
+          name: "addLastName",
+          type: "input",
+          message: "Please enter last name of employee:"
+        },
+        {
+          name: "addDepartment",
+          type: "list",
+          message: "Please select department of employee:",
+          choices: departmentArray
+        },
+        {
+          name: "addRole",
+          type: "list",
+          message: "Please select role of employee:",
+          choices: roleArray
+        },
+        {
+          name: "addManager",
+          type: "list",
+          message: "Please select the manager of this employee:",
+          choices: managerArray
+        }
+      ])
+      .then(response => {
+        // Use id from returned responses
+        let roleResponse = parseInt(response.roleOptions);
+        let managerResponse = parseInt(response.managerOptions);
+        connection.query(
+          "INSERT INTO role SET ?",
+          {
+            first_name: response.addFirstName,
+            last_name: response.addLastName,
+            role_id: roleResponse,
+            manager_id: managerResponse
+          }, (err, res) => {
+            if (err) throw err;
+          }
+        )
+        connection.query(viewAllEmployees, (err, res) => {
+          if (err) throw err;
+          console.table(res);
+          runTracker();
+          })
         })
-  });
-}
+      })
+    })
+  })
+};
+
+// Add New Role (with validation)
+// ***************************************************************
+const addNewRole = () => {
+  inquirer.prompt(
+    {
+      name: "validation",
+      type: "input",
+      message: "Please confirm - is this department already in the tracker? Y/N:"
+    }
+  ).then(response => {
+    const userValidation = response.validation.toLowerCase();
+    if (userValidation === "n") {
+      runTracker();
+    } else if (userResp === "y") {
+      newRoleInput();
+    };
+  })
+};
+const newRoleInput = () => {
+  let dpt = [];
+  connection.query(`SELECT * FROM department`, (err, res) => {
+    res.forEach(element => {
+      dpt.push(`${element.id} ${element.department}`);
+    });
+  inquirer
+    .prompt([
+      {
+        name: "roleTitle",
+        type: "input",
+        message: "Please enter the new role title:",
+        validate: (response) => {
+          if (response.length < 1) {
+              return 'Must enter a valid title';  
+          }
+          return true;
+      },
+        name: "department",
+        type: "list",
+        message: "Please select the new role's department:",
+        choices: ["Engineering", "Sales", "Financial", "Legal"],
+        validate: (response) => {
+          if (response.length < 1) {
+              return 'Must enter a valid deparment';
+          }
+          return true;
+      },
+        name: "salary",
+        type: "input",
+        message: "Please enter the new role's salary:", 
+        validate: (response) => {
+          if (response.length < 1) {
+              return 'Must enter a valid salary';
+          }
+          return true;
+      },
+      }
+  ])
+    .then(response => {
+      connection.query(
+        "INSERT INTO role SET ?",
+        {
+          title: response.roleTitle,
+          salary: response.salary,
+          department_id: parseInt(response.department)
+        }, (err, res) => {
+          if (err) throw err;
+          console.log(`${response.roleTitle} role has been added successfully.`)
+        }
+      )
+      connection.query(`SELECT * FROM role`, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        runTracker();
+      })
+    })
+  })
+};
+
+// Add New Department 
+// ***************************************************************
+const addNewDepartment = () => {
+  inquirer
+    .prompt(
+      {
+        name: "department",
+        type: "input",
+        message: "Enter the name of the new department:"
+      }
+    )
+    .then(response => {
+      connection.query(
+        "INSERT INTO department SET ?",
+        {
+          department: response.department
+        }, (err, res) => {
+          if (err) throw err;
+          console.log(`Added ${response.department} department`)
+        })
+      connection.query(`SELECT * FROM department`, (err, res) => {
+        console.table(res);
+        runTracker();
+      })
+    })
+};
 
 // Delete Employee Role
 // ***************************************************************
 const deleteEmployeeRole = () => {
   // ADD QUERY
-  let employeesList = [];
+  let employeesArray = [];
+  connection.query(`SELECT id, first_name, last_name
+  FROM employee`, 
+  (err, res) => {
+    res.forEach(element => {
+      employeesArray.push(`${element.id} ${element.first_name} ${element.last_name}`);
+    });
     inquirer
       .prompt({
         name: "deleteRole",
         type: "list",
         message: "Please select the employee role you would like to delete?",
-        choices: employeesList
+        choices: employeesArray
       })
       .then(response => {
         // connection.query(
@@ -240,15 +391,25 @@ const deleteEmployeeRole = () => {
           console.table(response);
           runTracker();
         })
-      });
+      })
+  });
 }
 
 // Update Employee Role
 // ***************************************************************
 const updateEmployeeRole = () => {
   let employeesArray = [];
-    // ADD QUERY
-      inquirer
+  connection.query(`SELECT id, first_name, last_name
+  FROM employee`, (err, res) => {
+    res.forEach(element => {
+      employeesArray.push(`${element.id} ${element.first_name} ${element.last_name}`);
+    });
+    let roleArray = [];
+    connection.query(`SELECT id, title FROM role`, (err, res) => {
+      res.forEach(element => {
+        roleArray.push(`${element.id} ${element.title}`);
+      });
+        inquirer
         .prompt([
           {
             name: "updateRole",
@@ -260,12 +421,11 @@ const updateEmployeeRole = () => {
             name: "employeeRole",
             type: "list",
             message: "Please select the employee role:",
-            choices: employeeRole
+            choices: roleArray
           }
         ])
         .then(response => {
-          // connection.query(
-          let updatedRoleID = parseInt(response.updateRonle);
+          let updatedRoleID = parseInt(response.updateRole);
           let updatedEmployeeRole = parseInt(response.employeeRole);
           connection.query(
             `UPDATE employee SET role_id = ${updatedEmployeeRole} WHERE id = ${updatedRoleID}`, (err, res) => {
@@ -277,14 +437,76 @@ const updateEmployeeRole = () => {
             console.table(res);
             runTracker();
           })
-        });
-} 
+        })
+      })
+  })
+}
 
-// Note: use mySQLjoins;
+// Employees by manager_id
+// *****************************************************************
+const viewEmployeeByManager = () => {
+  let departmentArray = [];
+  // use aggregate function
+  connection.query(`             
+        SELECT 
+          e.id AS employee_id,
+          CONCAT (e.first_name,'',e.last_name) AS Manager_Full_Name,
+          r.id AS role_id,
+          e.manager_id
+        FROM employee e
+          INNER JOIN role r 
+              ON e.role_id = r.id
+        WHERE e.manager_id IS NOT NULL
+        ORDER BY e.manager_id DESC`, 
+//       (err, res) => {
+//       res.forEach(element => {
+//       departmentArray.push(element.department);
+//     });
+//     inquirer
+//       .prompt({
+//         name: "action",
+//         type: "list",
+//         message: "What manager's employees do you want to see? would you like to view?",
+//         choices: departmentArray
+//       })
+//       .then(response => {
+//         connection.query(`${viewAllEmployees}
+//         WHERE department = "${response.action}"`, (err, res) => {
+//           console.table(res);
+//           runTracker();
+//         })
+//       })
+//   })
+// };
+  (err, res) => {
+  if (err) throw err;
+  console.table(res);
+  runTracker();
+})
+};
 
-// SELECT employee.id, employee.first_name, employee.last_name, roles.title, roles.salary, department.dep_name, CONCAT(employee.first_name,' ’, employee.last_name) AS Manager
-//     FROM employee
-//     LEFT JOIN roles ON roles.id = employee.role_id
-//     LEFT JOIN department ON department.id = roles.department_id
-//     LEFT JOIN employee e ON e.id = employee.manager_id
-//     ORDER BY employee.id;
+// Total utilized budget by department -- ie the combined salaries of all employees in that department
+// *****************************************************************
+const viewBudgetByDepartment = () => {
+  // use aggregate function (e.g. sum, count, average, etc)
+  connection.query( `
+        SELECT
+          SUM(r.salary),
+          d.name
+        FROM employee e
+          INNER JOIN role r 
+              ON e.role_id = r.id
+          INNER JOIN department d
+              ON r.department_id = d.id
+        GROUP BY 
+          2`, 
+        // Group by: when using an aggregate function (e.g. sum, count, average, etc) in the select statement, everything under the aggregate function must be grouped
+        (err, res) => {
+        // connect to the mysql server and sql database
+        if (err) throw err;
+        // run the start function after the connection is made to prompt the user
+        console.table(res);
+        // runTracker();
+    })
+  };
+// end Tracker 
