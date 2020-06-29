@@ -38,7 +38,6 @@ CREATE TABLE department (
 SELECT * FROM EmployeeTracker_db;
 
 -- SQL Queries: all queries below successfully tested in MySQL Workbench and returned correct data from EmployeeTracker_db
-
 -- "View all employees"
             SELECT * FROM employee
 
