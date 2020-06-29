@@ -40,12 +40,12 @@ function runTracker() {
             "View all employees",
             "View all departments", 
             "View all roles", 
-            "View employees by department", 
-            "Add new employee", 
-            "Add new role", 
             "Add new department", 
+            "Add new role", 
+            "Add new employee", 
             "Delete employee role",
             "Update employee role", 
+            "View employees by department", 
             "View employees by manager", 
             "View total budget by department", 
             "Exit"
@@ -80,13 +80,11 @@ function runTracker() {
         case "Add new department":
           addNewDepartment();
             break;
-      
+        case "Update employee role":
+          updateEmployeeRole() 
+            break;
        case "Delete employee role":
           deleteEmployeeRole() 
-            break;
-
-       case "Update employee role":
-           updateEmployeeRole() 
             break;
 
        case "View employees by manager":
@@ -128,6 +126,251 @@ function runTracker() {
       })
     };
 
+// View all Departments
+// ***************************************************************
+      const viewAllDepartments = () => {
+        connection.query(`SELECT * FROM department`, (err, res) => {
+          if (err) throw err;
+          console.table(res);
+          runTracker();
+        });
+      };
+
+// View all Roles
+// ***************************************************************
+      const viewAllRoles = () => {
+        connection.query(`SELECT * FROM role`, (err, res) => {
+          if (err) throw err;
+          console.table(res);
+          runTracker();
+        });
+    };
+
+// // Add New Department 
+// // ***************************************************************
+const addNewDepartment = () => {
+  inquirer
+      .prompt({
+          name: "newDepartment",
+          type: "input",
+          message: "Enter the the new department you would like to add.",
+          validate: (answer) => {
+              if (answer.length < 1) {
+                  return 'Must enter a valid department.';
+              }
+              return true;
+          },
+      })
+      .then(response => {
+          connection.query("INSERT INTO department SET ?",
+          {
+              name: response.newDepartment
+          }, 
+          (err, res) => {
+              if (err) throw err;
+              console.log(`Added ${response.newDepartment} department successfully!`);
+              runTracker();
+          });
+      });
+};
+
+// Add New Role 
+// ***************************************************************
+const addNewRole = () => {
+  inquirer
+      .prompt([
+          {
+              name: "roleTitle",
+              type: "input",
+              message: "Please enter the new role title you would like to add.",
+              validate: (answer) => {
+                  if (answer.length < 1) {
+                      return 'Must enter a valid role title.';
+                  }
+                  return true;
+              },
+          },
+          {
+              name: "roleSalary",
+              type: "input",
+              message: "Please enter the new role's salary.",
+              validate: (answer) => {
+                  if (answer.length < 1) {
+                      return 'Must enter a valid salary.';
+                  }
+                  return true;
+              },
+          },
+          {
+              name: "departmentID",
+              type: "input",
+              message: "Please enter the new role's department ID.",
+              validate: (answer) => {
+                  if (answer.length < 1) {
+                      return 'Must enter a valid department ID.';
+                  }
+                  return true;
+              }
+          }
+      ])
+      .then(response => {
+          connection.query("INSERT INTO role SET ?",
+          {
+              title: response.roleTitle,
+              salary: parseInt(response.roleSalary),
+              department_id: parseInt(response.departmentID)
+          },
+          (err, res) => {
+              if (err) throw err;
+              console.log(`Added ${response.roleTitle} role successfully!`);
+              runTracker();
+          });
+      });
+};
+
+// Add New Employee
+// ***************************************************************
+const addNewEmployee = () => {
+  inquirer
+      .prompt([
+          {
+              name: "firstName",
+              type: "input",
+              message: "Please enter the new employee's first name.",
+              validate: (answer) => {
+                  if (answer.length < 1) {
+                      return 'Please enter a valid first name';
+                  }
+                  return true;
+              },
+          },
+          {
+              name: "lastName",
+              type: "input",
+              message: "Please enter the new employee's last name.",
+              validate: (answer) => {
+                  if (answer.length < 1) {
+                      return 'Please enter a valid last name';
+                  }
+                  return true;
+              }
+          },
+          {
+              name: "roleId",
+              type: "input",
+              message: "Please enter the role ID for the new employee.",
+              validate: (answer) => {
+                  if (answer.length < 1) {
+                      return 'Please enter a valid role id';
+                  }
+                  return true;
+              },
+            //   name: "addManager",
+            //   type: "list",
+            //   message: "Please select the manager of this employee:",
+            //   choices: managerArray
+          }
+      ])
+      .then(response => {
+          connection.query("INSERT INTO employee SET ?",
+          {
+              first_name: response.firstName,
+              last_name: response.lastName,
+              role_id: parseInt(response.roleId)
+          },
+          (err, res) => {
+              if (err) {
+                  console.log('Must enter valid ID. Please try again.');
+                  addNewEmployee();
+                  return;
+              }
+              console.log(`${response.firstName} ${response.lastName} has been succesfully to the employee records!`);
+              runTracker();
+          });
+      });
+};
+// // Update Employee Role
+// // ***************************************************************
+const updateEmployeeRole = () => {
+      connection.query(`
+      SELECT id, first_name, last_name
+      FROM employee`, 
+    (err, res) => {
+      if (err) throw err;
+  inquirer
+      .prompt([
+         { 
+              name: "employeeID",
+              type: "input",
+              message: "Please enter the ID number of the employee record you would like to update.",
+              validate: (answer) => {
+                  if (answer.length < 1) {
+                      return 'Must enter a valid ID number';
+                  }
+                  return true;
+              },
+          },
+          { 
+              name: "updatedRoleID",
+              type: "input",
+              message: "Please enter the updated Role ID number of the selected employee record.",
+              validate: (answer) => {
+                  if (answer.length < 1) {
+                      return 'Must enter a valid Role ID number';
+                  }
+                  return true;
+              },
+          },
+      ])
+      .then(response => {
+          let updatedEmployeeRole = parseInt(response.employeeID);
+          let updatedRoleID = parseInt(response.updatedRoleID);
+          connection.query(`UPDATE employee SET role_id = ${updatedRoleID} WHERE id = ${updatedEmployeeRole}`,
+          (err, res) => {
+              if (err) {
+                  console.log('Must enter valid ID. Please try again.');
+                  updateEmployeeRole();
+                  return;
+              }
+              console.log(`Employee role has been updated successfully!`);
+              runTracker();
+          });
+      });
+    });
+
+};
+
+// Delete Employee Role
+// ***************************************************************
+const deleteEmployeeRole = () => {
+  // ADD QUERY
+  let employeesArray = [];
+  connection.query(`
+      SELECT id, first_name, last_name
+      FROM employee`, 
+    (err, res) => {
+    res.forEach(element => {
+      employeesArray.push(`${element.id} ${element.first_name} ${element.last_name}`);
+    });
+    inquirer
+      .prompt({
+        name: "deleteRole",
+        type: "list",
+        message: "Please select the employee role you would like to delete?",
+        choices: employeesArray
+      })
+      .then(response => {
+        // connection.query(
+        let employeeRoleID = parseInt(response.deleteRole)
+
+        connection.query(`DELETE FROM employee WHERE id = ${employeeRoleID}`, (err, res) => {
+          console.table(response);
+          runTracker();
+        })
+      })
+  });
+}
+
 // View Employees by Department
 // *****************************************************************
 const viewEmployeesByDepartment = () => {
@@ -165,287 +408,6 @@ const viewEmployeesByDepartment = () => {
             })
         })
       };
-
-      // View all Departments
-      // ***************************************************************
-      const viewAllDepartments = () => {
-        connection.query(`SELECT * FROM department`, (err, res) => {
-          if (err) throw err;
-          console.table(res);
-          runTracker();
-        });
-      };
-
-      // View all Roles
-      // ***************************************************************
-      const viewAllRoles = () => {
-        connection.query(`SELECT * FROM role`, (err, res) => {
-          if (err) throw err;
-          console.table(res);
-          runTracker();
-        });
-    };
-
-// ADD New Employee
-// ***************************************************************
-
-const addNewEmployee = () => {
-  let departmentArray = [];
-  connection.query(`SELECT * FROM department`, (err, res) => {
-    res.forEach(element => {
-      departmentArray.push(`${element.id} ${element.department}`);
-    });
-    let roleArray = [];
-    connection.query(`SELECT id, title FROM role`, (err, res) => {
-      res.forEach(element => {
-        roleArray.push(`${element.id} ${element.title}`);
-      });
-      let managerArray= [];
-      connection.query(`SELECT id, first_name, last_name FROM employee`, (err, res) => {
-        res.forEach(element => {
-          managerArray.push(`${element.id} ${element.first_name} ${element.last_name}`);
-        });
-    inquirer
-      .prompt([
-        {
-          name: "addFirstName",
-          type: "input",
-          message: "Please enter first name of employee:"
-          },
-          {
-          name: "addLastName",
-          type: "input",
-          message: "Please enter last name of employee:"
-        },
-        {
-          name: "addDepartment",
-          type: "list",
-          message: "Please select department of employee:",
-          choices: departmentArray
-        },
-        {
-          name: "addRole",
-          type: "list",
-          message: "Please select role of employee:",
-          choices: roleArray
-        },
-        {
-          name: "addManager",
-          type: "list",
-          message: "Please select the manager of this employee:",
-          choices: managerArray
-        }
-      ])
-      .then(response => {
-        // Use id from returned responses
-        let roleResponse = parseInt(response.roleOptions);
-        let managerResponse = parseInt(response.managerOptions);
-        connection.query(
-          "INSERT INTO role SET ?",
-          {
-            first_name: response.addFirstName,
-            last_name: response.addLastName,
-            role_id: roleResponse,
-            manager_id: managerResponse
-          }, (err, res) => {
-            if (err) throw err;
-          }
-        )
-        connection.query(viewAllEmployees, (err, res) => {
-          if (err) throw err;
-          console.table(res);
-          runTracker();
-          })
-        })
-      })
-    })
-  })
-};
-
-// Add New Role (with validation)
-// ***************************************************************
-const addNewRole = () => {
-  inquirer.prompt(
-    {
-      name: "validation",
-      type: "input",
-      message: "Please confirm - is this department already in the tracker? Y/N:"
-    }
-  ).then(response => {
-    const userValidation = response.validation.toLowerCase();
-    if (userValidation === "n") {
-      runTracker();
-    } else if (userResp === "y") {
-      newRoleInput();
-    };
-  })
-};
-const newRoleInput = () => {
-  let dpt = [];
-  connection.query(`SELECT * FROM department`, (err, res) => {
-    res.forEach(element => {
-      dpt.push(`${element.id} ${element.department}`);
-    });
-  inquirer
-    .prompt([
-      {
-        name: "roleTitle",
-        type: "input",
-        message: "Please enter the new role title:",
-        validate: (response) => {
-          if (response.length < 1) {
-              return 'Must enter a valid title';  
-          }
-          return true;
-      },
-        name: "department",
-        type: "list",
-        message: "Please select the new role's department:",
-        choices: ["Engineering", "Sales", "Financial", "Legal"],
-        validate: (response) => {
-          if (response.length < 1) {
-              return 'Must enter a valid deparment';
-          }
-          return true;
-      },
-        name: "salary",
-        type: "input",
-        message: "Please enter the new role's salary:", 
-        validate: (response) => {
-          if (response.length < 1) {
-              return 'Must enter a valid salary';
-          }
-          return true;
-      },
-      }
-  ])
-    .then(response => {
-      connection.query(
-        "INSERT INTO role SET ?",
-        {
-          title: response.roleTitle,
-          salary: response.salary,
-          department_id: parseInt(response.department)
-        }, (err, res) => {
-          if (err) throw err;
-          console.log(`${response.roleTitle} role has been added successfully.`)
-        }
-      )
-      connection.query(`SELECT * FROM role`, (err, res) => {
-        if (err) throw err;
-        console.table(res);
-        runTracker();
-      })
-    })
-  })
-};
-
-// Add New Department 
-// ***************************************************************
-const addNewDepartment = () => {
-  inquirer
-    .prompt(
-      {
-        name: "department",
-        type: "input",
-        message: "Enter the name of the new department:"
-      }
-    )
-    .then(response => {
-      connection.query(
-        "INSERT INTO department SET ?",
-        {
-          department: response.department
-        }, (err, res) => {
-          if (err) throw err;
-          console.log(`Added ${response.department} department`)
-        })
-      connection.query(`SELECT * FROM department`, (err, res) => {
-        console.table(res);
-        runTracker();
-      })
-    })
-};
-
-// Delete Employee Role
-// ***************************************************************
-const deleteEmployeeRole = () => {
-  // ADD QUERY
-  let employeesArray = [];
-  connection.query(`
-      SELECT id, first_name, last_name
-      FROM employee`, 
-    (err, res) => {
-    res.forEach(element => {
-      employeesArray.push(`${element.id} ${element.first_name} ${element.last_name}`);
-    });
-    inquirer
-      .prompt({
-        name: "deleteRole",
-        type: "list",
-        message: "Please select the employee role you would like to delete?",
-        choices: employeesArray
-      })
-      .then(response => {
-        // connection.query(
-        let employeeRoleID = parseInt(response.deleteRole)
-
-        connection.query(`DELETE FROM employee WHERE id = ${employeeRoleID}`, (err, res) => {
-          console.table(response);
-          runTracker();
-        })
-      })
-  });
-}
-
-// Update Employee Role
-// ***************************************************************
-const updateEmployeeRole = () => {
-  let employeesArray = [];
-  connection.query(`
-        SELECT id, first_name, last_name
-        FROM employee`, 
-     (err, res) => {
-    res.forEach(element => {
-      employeesArray.push(`${element.id} ${element.first_name} ${element.last_name}`);
-    });
-    let roleArray = [];
-    connection.query(`SELECT id, title FROM role`, (err, res) => {
-      res.forEach(element => {
-        roleArray.push(`${element.id} ${element.title}`);
-      });
-        inquirer
-        .prompt([
-          {
-            name: "updateRole",
-            type: "list",
-            message: "Please select the employee role you would like to update:",
-            choices: employeesArray
-          },
-          {
-            name: "employeeRole",
-            type: "list",
-            message: "Please select the employee role:",
-            choices: roleArray
-          }
-        ])
-        .then(response => {
-          let updatedRoleID = parseInt(response.updateRole);
-          let updatedEmployeeRole = parseInt(response.employeeRole);
-          connection.query(
-            `UPDATE employee SET role_id = ${updatedEmployeeRole} WHERE id = ${updatedRoleID}`, (err, res) => {
-              if (err) throw err;
-            }
-          )
-          connection.query((err, res) => {
-            if (err) throw err;
-            console.table(res);
-            runTracker();
-          })
-        })
-      })
-  })
-}
 
 // Employees by manager_id
 // *****************************************************************
