@@ -32,6 +32,7 @@ So that I can organize and plan my business
 i. Fork the Github repository.
 ii. Clone the forked repo into your local machine using gitbash/terminal to pull the project and data.
 iii. Run the command-lines below to run the app functionality. You can also access the files and assets via Visual Studio to view the code. 
+iv. Command-lines: 1) npm install // 2) node EmployeeTracker.js to run the app // 3) App runs on http://localhost:3000
 iv. Explore the Employee Tracker app: add/view/update/delete departments, roles, employees
 ```
 
